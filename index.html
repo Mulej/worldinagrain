@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sand</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="v/a166cea387/style.css">
+    <script>
+        // Packaged (tools/package.mjs): a page the browser kept from before
+        // the site was updated may name a version no longer there.
+        function filesMissing() {
+            if (sessionStorage.getItem("sand.reloadedFor") !== "a166cea387") {
+                sessionStorage.setItem("sand.reloadedFor", "a166cea387");
+                location.reload();
+                return;
+            }
+            const el = document.getElementById("error");
+            el.textContent = "The app's files didn't load. Check the connection, then reload the page.";
+            el.hidden = false;
+        }
+    </script>
+    <script type="module" onerror="filesMissing()" src="v/a166cea387/js/main.js"></script>
+</head>
+<body>
+    <aside id="panel">
+        <header>
+            <h1>Sand</h1>
+            <span class="stats"><span id="fps"></span> · <span id="grid"></span></span>
+            <button id="tour-open" class="tour-open" title="Show the tour (?)" aria-label="Show the tour">?</button>
+        </header>
+
+        <div class="transport">
+            <button id="pause" class="icon" title="Pause (Space)" aria-label="Pause"></button>
+            <button id="step" class="icon" title="Advance one step (N)" aria-label="Step"></button>
+            <select id="view-mode" title="What the world shows">
+                <option value="0" selected>Normal view</option>
+                <option value="1">Heat (T)</option>
+                <option value="2">Pressure (P)</option>
+                <option value="3">Oxygen (O)</option>
+                <option value="4">Moisture (M)</option>
+                <option value="5">Lit (L)</option>
+                <option value="6">Gravity (F)</option>
+            </select>
+            <button id="clear" class="icon danger" title="Empty the world" aria-label="Clear"></button>
+        </div>
+
+        <!-- The brush: what it is, the tools, and its options. Stays in
+             view while the rest scrolls. -->
+        <section id="brush" class="card">
+            <div class="brush-head">
+                <span id="brush-swatch" class="swatch"></span>
+                <div class="brush-text">
+                    <div id="brush-name" class="brush-name"></div>
+                    <div id="brush-note" class="brush-note"></div>
+                </div>
+            </div>
+            <div id="tools" class="tools"></div>
+            <div id="shape-row" class="option">
+                <span class="label">Shape</span>
+                <div id="shapes" class="segmented shapes"></div>
+            </div>
+            <label id="size-row" class="field" title="Brush size (wheel, [ and ])">
+                <span class="label">Size</span>
+                <input id="size" type="range" min="1" max="40" value="6">
+                <output id="size-out">6</output>
+            </label>
+            <div id="density-row" class="field" title="How much of the brush gets painted">
+                <span class="label">Density</span>
+                <input id="density" type="range" min="1" max="100" value="100" aria-label="Density">
+                <button id="density-out" class="value" title="Back to the element's own">auto</button>
+            </div>
+            <div id="temp-row" class="field" title="The temperature it is painted at">
+                <span class="label">Temp</span>
+                <input id="temp" type="range" min="-200" max="3000" step="10" value="20" aria-label="Temperature">
+                <button id="temp-out" class="value" title="Back to the element's own">own</button>
+            </div>
+            <div id="over-row" class="option" title="What it paints over (R: empty space or everything)">
+                <span class="label">Over</span>
+                <div id="over" class="segmented"></div>
+            </div>
+            <select id="over-element" class="over-element" title="The one element it paints over"></select>
+        </section>
+
+        <section class="elements-section">
+            <input id="search" type="search" placeholder="Search elements   /" autocomplete="off" spellcheck="false">
+            <div id="palette"></div>
+        </section>
+
+        <details class="panel-section" open>
+            <summary>Scenes</summary>
+            <div id="scenes" class="scene-groups"></div>
+        </details>
+
+        <details class="panel-section">
+            <summary>World</summary>
+            <div class="settings">
+                <label class="field">
+                    <span class="label">Speed</span>
+                    <select id="speed">
+                        <option value="0.25">¼×</option>
+                        <option value="0.5">½×</option>
+                        <option value="1" selected>1×</option>
+                        <option value="2">2×</option>
+                        <option value="3">3×</option>
+                    </select>
+                </label>
+                <label class="field" title="Time of day: the sun crosses the sky from left to right">
+                    <span class="label">Time</span>
+                    <input id="clock" type="range" min="0" max="1439" step="1" value="540">
+                    <output id="clock-out">9:00</output>
+                </label>
+                <label class="field" title="How fast the day goes: a day lasts 12, 4 or 1 minutes at 1× speed">
+                    <span class="label">Day</span>
+                    <select id="day-speed">
+                        <option value="0">Stopped</option>
+                        <option value="1">Slow</option>
+                        <option value="2" selected>Normal</option>
+                        <option value="3">Fast</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span class="label">Grid</span>
+                    <select id="resolution" title="Changing this resets the world">
+                        <option value="2">Fine</option>
+                        <option value="3" selected>Normal</option>
+                        <option value="4">Coarse</option>
+                        <option value="6">Chunky</option>
+                        <option value="8">Huge</option>
+                    </select>
+                </label>
+                <label class="field" title="How big a cell is. The open air is colder higher up, 6.5 °C a kilometre, so it shows at metres a cell. Scenes set their own.">
+                    <span class="label">Scale</span>
+                    <input id="scale" type="range" min="0" max="1000" value="213">
+                    <output id="scale-out">1 cm</output>
+                </label>
+                <label class="field" title="How hard a black hole pulls at its edge, in Earth's g. Its pull falls off with the square of the distance from there, as every mass's does. Scenes set their own.">
+                    <span class="label">Black hole</span>
+                    <input id="hole-pull" type="range" min="0" max="1000" value="500">
+                    <output id="hole-pull-out">10 g</output>
+                </label>
+                <label class="check" title="The Earth's pull, straight down the screen. Off, the world is out in space: nothing pulls but what is in it, and only a black hole pulls hard enough to notice. Down is always wherever the pull points. Scenes set their own."><input id="earth-gravity" type="checkbox" checked> Earth's gravity</label>
+                <div class="option" title="The whole world as it is, to a file, and back to exactly where it was">
+                    <span class="label">Snapshot</span>
+                    <div class="pair">
+                        <button id="snapshot-save">Save</button>
+                        <button id="snapshot-load">Load</button>
+                    </div>
+                    <input id="snapshot-file" type="file" accept=".snap" hidden>
+                </div>
+            </div>
+        </details>
+
+        <details class="panel-section help">
+            <summary>Shortcuts</summary>
+            <dl>
+                <dt>Left / Right</dt><dd>use the tool / erase</dd>
+                <dt>Middle, <kbd>I</kbd></dt><dd>pick up the element under the pointer</dd>
+                <dt><kbd>Shift</kbd>+drag</dt><dd>a straight line</dd>
+                <dt>Wheel, <kbd>[</kbd> <kbd>]</kbd></dt><dd>brush size</dd>
+                <dt><kbd>1</kbd>–<kbd>5</kbd></dt><dd>round, square, spray, box, fill</dd>
+                <dt><kbd>R</kbd></dt><dd>paint into empty space / over everything</dd>
+                <dt><kbd>/</kbd></dt><dd>search the elements (Enter picks)</dd>
+                <dt>Tools</dt><dd><kbd>D</kbd> draw <kbd>E</kbd> erase <kbd>W</kbd> wind <kbd>H</kbd> heat <kbd>C</kbd> cool <kbd>S</kbd> spark <kbd>V</kbd> person</dd>
+                <dt>Views</dt><dd><kbd>T</kbd> heat <kbd>P</kbd> pressure <kbd>O</kbd> oxygen <kbd>M</kbd> moisture <kbd>L</kbd> lit <kbd>F</kbd> gravity</dd>
+                <dt><kbd>Space</kbd> <kbd>N</kbd></dt><dd>pause, step</dd>
+                <dt><kbd>G</kbd></dt><dd>performance</dd>
+                <dt><kbd>?</kbd></dt><dd>the tour</dd>
+            </dl>
+            <p>Fans blow the way you drag while painting them. The sun warms what it shines on and plants grow by it; the clear night sky cools things down.</p>
+        </details>
+    </aside>
+
+    <main id="stage">
+        <canvas id="view"></canvas>
+        <div id="hover"></div>
+        <pre id="perf" hidden></pre>
+        <div id="toast"></div>
+        <!-- The guided tour (tour.js): a step at a time, pointing at the
+             control each is about. -->
+        <section id="tour" class="tour" role="dialog" aria-labelledby="tour-title" aria-live="polite" hidden>
+            <div id="tour-progress" class="tour-progress"></div>
+            <h2 id="tour-title"></h2>
+            <p id="tour-text"></p>
+            <div class="tour-buttons">
+                <button id="tour-skip">Skip</button>
+                <button id="tour-next" class="tour-next">Next</button>
+            </div>
+        </section>
+        <pre id="error" hidden></pre>
+    </main>
+</body>
+</html>
